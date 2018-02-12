@@ -97,6 +97,10 @@ Token::Token(std::string tokenString) {
 			this->type = INT_LITERAL;
 		} else if (tokenString == "PRINT") {
 			this->type = PRINT;
+		} else if (tokenString == "FOR") {
+			this->type = FOR;
+		} else if (tokenString == "ENDFOR") {
+			this->type = ENDFOR;
 		} else {
 			// must be variable
 			this->type = VARIABLE;

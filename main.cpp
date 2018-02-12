@@ -106,6 +106,8 @@ vector<Token> tokenize(string line) {
 
 void runLine(vector<Token> tokens, int numTimes){
 	bool printTokens = false; // for debugging
+	if (tokens.size() == 0) return;
+	int numSeen = 0;
 	for (int i = 0; i<numTimes; i++){
 		if (printTokens) {
 			for (unsigned j = 0; j<tokens.size(); j++){
@@ -117,9 +119,10 @@ void runLine(vector<Token> tokens, int numTimes){
 		switch(tokens[0].type) {
 			case VARIABLE:
 				runEquation(tokens);
+				numSeen = 4;
 				break;
 			case PRINT:
-				
+				numSeen = 3;
 				switch(tokens[1].type) {
 					case VARIABLE: 
 					{
@@ -137,12 +140,14 @@ void runLine(vector<Token> tokens, int numTimes){
 						}
 						
 						std::cout << std::endl;
+						
 					} 
 					break;
 					case INT_LITERAL:
 					{
 						int val = *(int*)tokens[1].value;
 						std::cout << val << std::endl;
+						
 						
 					}
 					break;
@@ -154,14 +159,41 @@ void runLine(vector<Token> tokens, int numTimes){
 					break;
 					default: 
 					{
+						std::cout << "line 157 default err" << std::endl;
 						error();
 					}
 				}
 				
 				break;
+			case FOR:
+			{
+				if (tokens[tokens.size()-1].type != ENDFOR) error();
+				if (tokens[1].type != INT_LITERAL) error();
+				// make new subset of tokens, re-call line method
+				vector<Token> newTokens;
+				for (unsigned i = 2; i<tokens.size()-1; i++) {
+					newTokens.push_back(tokens[i]);
+				}
+				runLine(newTokens, *(int*)tokens[1].value);
+			
+				
+			}
 			default:
 			
 				break;
+		}
+		
+		
+		// the first part only handles each individual statement. 
+		// it tracks how many tokens it's seen, and then reruns with the remaining tokens
+		// this only applies if the first token is NOT a for, as for takes care of that on its own
+		
+		if (tokens[0].type != FOR){
+			vector<Token> newTokens;
+			for (unsigned i = numSeen; i<tokens.size(); i++){
+				newTokens.push_back(tokens[i]);
+			}
+			runLine(newTokens, 1);
 		}
 	}
 }
@@ -189,13 +221,17 @@ void runEquation(vector<Token> tokens) {
 			valueType = STRING;
 			value = tokens[2].value;
 			break;
-		default: 
+		default:
+			std::cout << "line 207 default err" << std::endl;
 			error();
 			break;
 	}
 	
-	if (valueType == UNDEFINED) error();
-	if (first.type != UNDEFINED && first.type != valueType) error();
+	if (valueType == UNDEFINED) {
+		std::cout << "line 213 value type undefined" << std::endl;
+		error();
+	}
+	if (first.type != UNDEFINED && first.type != valueType && tokens[1].type != EQUALS) error();
 	switch(tokens[1].type) {
 		case EQUALS:
 			setSymbol(first.name, value, valueType);
@@ -204,13 +240,13 @@ void runEquation(vector<Token> tokens) {
 		{
 			if (first.type == STRING) {
 				char buf[512];
-				std::string firstString = *(std::string*)first.value;
+				std::string firstString(*(std::string*)first.value);
 				unsigned i;
 				for (i = 0; i<firstString.size(); i++) {
 					buf[i] = firstString[i];
 				}
-				std::string secondString = *(std::string*)value;
-				for (unsigned j=0; i<secondString.size(); j++){
+				std::string secondString(*(std::string*)value);
+				for (unsigned j=0; j<secondString.size(); j++){
 					buf[i++] = secondString[j];
 				}
 				buf[i] = '\0';
@@ -224,26 +260,27 @@ void runEquation(vector<Token> tokens) {
 				newVal += *(int*)value;
 				setSymbol(first.name, &newVal, valueType);
 			}
-			break;
-		}
+			
+		} break;
 		case MINUS_EQUALS:
 		{
 			if (first.type == STRING) error();
 			int newVal = *(int*)first.value;
 			newVal -= *(int*)value;
 			setSymbol(first.name, &newVal, valueType);
-			break;
-		}
+			
+		} break;
 		case ASTERISK_EQUALS:
 		{
 			if (first.type == STRING) error();
 			int newVal = *(int*)first.value;
 			newVal *= *(int*)value;
 			setSymbol(first.name, &newVal, valueType);
-			break;
-		}
+			
+		} break;
 		default: 
 		{
+			std::cout << "line 262 default err" << std::endl;
 			error();
 			break;
 		}
