@@ -220,8 +220,9 @@ void runEquation(vector<Token> tokens) {
 				
 			} else {
 				int newVal = *(int*)first.value;
+				
 				newVal += *(int*)value;
-				setSymbol(first.name, value, valueType);
+				setSymbol(first.name, &newVal, valueType);
 			}
 			break;
 		}
@@ -230,7 +231,7 @@ void runEquation(vector<Token> tokens) {
 			if (first.type == STRING) error();
 			int newVal = *(int*)first.value;
 			newVal -= *(int*)value;
-			setSymbol(first.name, value, valueType);
+			setSymbol(first.name, &newVal, valueType);
 			break;
 		}
 		case ASTERISK_EQUALS:
@@ -238,7 +239,7 @@ void runEquation(vector<Token> tokens) {
 			if (first.type == STRING) error();
 			int newVal = *(int*)first.value;
 			newVal *= *(int*)value;
-			setSymbol(first.name, value, valueType);
+			setSymbol(first.name, &newVal, valueType);
 			break;
 		}
 		default: 
@@ -272,6 +273,18 @@ Symbol getSymbol(Token t) {
 };
 
 void setSymbol(string name, void* value, VariableType t){
+	// pass all the things by value
+	
+	void* newValue;
+	if (t == INT) {
+		
+		int* i = new int;
+		*i = *(int*)value;
+		newValue = i;
+	} else if (t == STRING) {
+		string* s = new string(*(string*)value);
+		newValue = s;
+	}
 	bool found = false;
 	int index = -1;
 	for (unsigned i = 0; i<symbols.size(); i++){
@@ -285,7 +298,14 @@ void setSymbol(string name, void* value, VariableType t){
 	if (!found) {
 		error();
 	} else {
-		symbols[index].value = value;
+		
+		if (symbols[index].type == INT){
+			delete (int*)symbols[index].value;
+		} else if (symbols[index].type == STRING){
+			delete (string*)symbols[index].value;
+		}
+		
+		symbols[index].value = newValue;
 		symbols[index].type = t;
 	}
 };
