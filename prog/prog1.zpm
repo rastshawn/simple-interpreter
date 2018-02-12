@@ -1,0 +1,11 @@
+a = 30 ;
+a *= 30 ;
+PRINT a ;
+b = 0 ;
+b += a ;
+b += b ;
+a = a ;
+a = 4 ;
+b *= 2 ;
+PRINT a ;
+PRINT b ;

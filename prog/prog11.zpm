@@ -1,0 +1,18 @@
+PROC F
+A *= 2 ;
+B *= 2 ;
+ENDPROC
+
+PROC G
+C += 1 ;
+CALL F ;
+ENDPROC
+
+A = 1 ;
+B = 1 ;
+C = 0 ;
+CALL F ;
+FOR 5 CALL G ; ENDFOR
+PRINT A ;
+PRINT B ;
+PRINT C ;

@@ -1,0 +1,6 @@
+a = 30 ;
+a *= 30 ;
+PRINT a ;
+a = a ;
+a = 4 ;
+PRINT a ;
