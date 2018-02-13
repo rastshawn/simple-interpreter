@@ -72,7 +72,7 @@ void readFile(string filename) {
 
 void parseLine(string line) {
 	//std::cout << line << std::endl;
-	std::cout << line << std::endl;
+	//std::cout << line << std::endl;
 	vector<Token> tokens = tokenize(line);
 	runLine(tokens, 1);
 
@@ -350,5 +350,6 @@ void setSymbol(string name, void* value, VariableType t){
 void error() {
 	// somehow stop instruction
 	std::cout << "RUNTIME ERROR: LINE " << line_counter << std::endl;
+	std::exit(1);
 	
 }
